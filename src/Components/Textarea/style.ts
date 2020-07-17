@@ -34,7 +34,7 @@ export const InputContainer = styled.div`
     &:focus {
       background-color: ${Colors.primary};
       color: ${Colors.background};
-      border-left: 1px solid ${Colors.background};
+      border-left: 1px solid ${Colors.secondary};
 
       &::placeholder {
         color: transparent;

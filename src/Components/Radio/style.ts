@@ -11,7 +11,6 @@ export const Fieldset = styled.fieldset`
     width: 100%;
     background-color: ${Colors.primary};
     color: ${Colors.background};
-    border-bottom: 1px solid ${Colors.background};
     padding: ${INPUT_PADDING};
     ${fontBold};
   }
@@ -52,5 +51,6 @@ export const Input = styled.input`
   &:focus + label {
     background-color: ${Colors.primary};
     color: ${Colors.background};
+    border-top: 1px solid ${Colors.secondary};
   }
 `;

@@ -69,6 +69,6 @@ export const Button = styled.button<{ color: keyof typeof Colors }>`
   &:focus,
   &:hover {
     background-color: ${({ color }) => Colors[color]};
-    color: ${Colors.background};
+    color: ${Colors.secondary};
   }
 `;

@@ -25,6 +25,7 @@ export interface IForm {
   buttonSelect: string;
   language: string;
   currency: string;
+  phone: string;
 }
 
 const EN: IForm = {
@@ -52,6 +53,7 @@ const EN: IForm = {
   buttonSelect: "Select",
   language: "Language",
   currency: "Currency",
+  phone: "Phone Number",
 };
 
 const BR: IForm = {
@@ -79,6 +81,7 @@ const BR: IForm = {
   buttonSelect: "Selecionar",
   language: "Idioma",
   currency: "Moeda",
+  phone: "Número de Telefone",
 };
 
 const ES: IForm = {
@@ -106,6 +109,7 @@ const ES: IForm = {
   buttonSelect: "Seleccione",
   language: "Idioma",
   currency: "Moneda",
+  phone: "Número de Teléfono",
 };
 
 const Form: { [T in keyof typeof AllLangs]: IForm } = {

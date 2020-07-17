@@ -9,13 +9,16 @@ import Textarea from "Components/Textarea";
 import TextInput from "Components/TextInput";
 
 import { removeNonNumeric } from "Utils/String";
+import { isValidLinkedinProfile, isValidEmail } from "Utils/Validate";
 
 import { AllLangs, AllLangsOptions } from "Assets/Languages";
+import Errors from "Assets/Languages/Errors";
 import Form from "Assets/Languages/Form";
 
 import { Container, Header, FormContainer, ButtonContainer } from "./style";
 
 type AllowedCurrencies = "USD" | "BRL" | "EUR";
+type ArrayFieldsType = "skill" | "language";
 
 const currencyOptions = [
   {
@@ -38,6 +41,7 @@ const View: React.FC = () => {
   const [currency, setCurrency] = useState<AllowedCurrencies>("USD");
   const [profilePicture, setProfilePicture] = useState<string>("");
   const [skills, setSkills] = useState<Array<string>>([""]);
+  const [languages, setLanguages] = useState<Array<string>>([""]);
 
   const onSubmit = useCallback((data: any) => {
     console.log(data);
@@ -69,34 +73,63 @@ const View: React.FC = () => {
     return allLangsOptions;
   }, []);
 
-  const changeSkillValue = useCallback(
-    (index: number, value: string) => {
-      const newSkills = skills.slice();
-
-      newSkills[index] = value;
-
-      setSkills(newSkills);
+  const changeArrayFieldValue = useCallback(
+    (type: ArrayFieldsType, index: number, value: string) => {
+      switch (type) {
+        case "skill":
+          const newSkills = skills.slice();
+          newSkills[index] = value;
+          setSkills(newSkills);
+        case "language":
+          const newLanguages = languages.slice();
+          newLanguages[index] = value;
+          setLanguages(newLanguages);
+          break;
+        default:
+          return;
+      }
     },
-    [skills],
+    [skills, languages],
   );
 
-  const addSkill = useCallback(() => {
-    const newSkills = skills.slice();
-
-    newSkills.push("");
-
-    setSkills(newSkills);
-  }, [skills]);
-
-  const removeSkill = useCallback(
-    (index: number) => {
-      const newSkills = skills.slice();
-
-      newSkills.splice(index, 1);
-
-      setSkills(newSkills);
+  const addArrayField = useCallback(
+    (type: ArrayFieldsType) => {
+      switch (type) {
+        case "skill":
+          const newSkills = skills.slice();
+          newSkills.push("");
+          setSkills(newSkills);
+          break;
+        case "language":
+          const newLanguage = languages.slice();
+          newLanguage.push("");
+          setLanguages(newLanguage);
+          break;
+        default:
+          return;
+      }
     },
-    [skills],
+    [skills, languages],
+  );
+
+  const removeArrayField = useCallback(
+    (type: ArrayFieldsType, index: number) => {
+      switch (type) {
+        case "skill":
+          const newSkills = skills.slice();
+          newSkills.splice(index, 1);
+          setSkills(newSkills);
+          break;
+        case "language":
+          const newLanguage = languages.slice();
+          newLanguage.splice(index, 1);
+          setLanguages(newLanguage);
+          break;
+        default:
+          return;
+      }
+    },
+    [languages, skills],
   );
 
   return (
@@ -133,7 +166,7 @@ const View: React.FC = () => {
           innerRef={register({
             required: true,
           })}
-          errorMessage={errors.name && "This Field Is Required."}
+          errorMessage={errors.name && Errors[language].required}
         />
         <TextInput
           isRequired
@@ -142,18 +175,7 @@ const View: React.FC = () => {
           innerRef={register({
             required: true,
           })}
-          errorMessage={errors.name && "This Field Is Required."}
-        />
-        <TextInput
-          label={Form[language].age}
-          name="age"
-          onChange={e => formatAge(e.target.value)}
-          innerRef={register()}
-        />
-        <TextInput
-          label={Form[language].graduation}
-          name="gaduation"
-          innerRef={register()}
+          errorMessage={errors.name && Errors[language].required}
         />
         <Textarea
           isRequired
@@ -162,7 +184,41 @@ const View: React.FC = () => {
           innerRef={register({
             required: true,
           })}
-          errorMessage={errors.name && "This Field Is Required."}
+          errorMessage={errors.name && Errors[language].required}
+        />
+        <TextInput
+          label={Form[language].age}
+          name="age"
+          onChange={e => formatAge(e.target.value)}
+          innerRef={register()}
+        />
+        <TextInput
+          label={Form[language].phone}
+          name="phone"
+          innerRef={register()}
+        />
+        <TextInput
+          label={Form[language].graduation}
+          name="gaduation"
+          innerRef={register()}
+        />
+        <TextInput
+          label="Email"
+          name="email"
+          innerRef={register({
+            validate: value =>
+              isValidEmail(value) || Errors[language].invalidEmail,
+          })}
+          errorMessage={errors.email && errors.email.message}
+        />
+        <TextInput
+          label="Linkedin"
+          name="linkedin"
+          innerRef={register({
+            validate: value =>
+              isValidLinkedinProfile(value) || Errors[language].invalidLinkedin,
+          })}
+          errorMessage={errors.linkedin && errors.linkedin.message}
         />
         <TextInput
           label={Form[language].salaryExpectation}
@@ -175,9 +231,20 @@ const View: React.FC = () => {
         <ArrayInputs
           label={Form[language].competences}
           inputs={skills}
-          setValue={changeSkillValue}
-          removeField={removeSkill}
-          addField={addSkill}
+          setValue={(index, value) =>
+            changeArrayFieldValue("skill", index, value)
+          }
+          removeField={index => removeArrayField("skill", index)}
+          addField={() => addArrayField("skill")}
+        />
+        <ArrayInputs
+          label={Form[language].languages}
+          inputs={languages}
+          setValue={(index, value) =>
+            changeArrayFieldValue("language", index, value)
+          }
+          removeField={index => removeArrayField("language", index)}
+          addField={() => addArrayField("language")}
         />
         <ButtonContainer>
           <Button aria-label="submit">{Form[language].submit}</Button>
