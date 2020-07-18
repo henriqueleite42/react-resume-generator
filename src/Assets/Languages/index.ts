@@ -1,4 +1,5 @@
-import { IDate } from "Assets/Languages/Dates";
+import { IDate } from "Assets/Languages/Date";
+import { IError } from "Assets/Languages/Error";
 import { IForm } from "Assets/Languages/Form";
 
 export const AllLangs = {
@@ -7,11 +8,12 @@ export const AllLangs = {
   ES: "Español",
 };
 
-export type AllLangsOptions = keyof typeof AllLangs;
-
 export interface ITranslations {
   Form: IForm;
   Date: IDate;
+  Error: IError;
 }
+
+export type AllLangsOptions = keyof typeof AllLangs;
 
 export default AllLangs;

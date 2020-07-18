@@ -172,4 +172,4 @@ const ProfileImage: React.FC<IProps> = ({
   );
 };
 
-export default ProfileImage;
+export default React.memo(ProfileImage);

@@ -64,4 +64,4 @@ const Textarea: React.FC<IProps> = props => {
   );
 };
 
-export default Textarea;
+export default React.memo(Textarea);

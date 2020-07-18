@@ -1,124 +1,88 @@
 // Documentação PDFKit
 // https://pdfkit.org/
 
-// Dependencies
-import fs from "fs";
-import path from "path";
+import BlobStream from "blob-stream";
 import PDFDocument from "pdfkit";
+import { AllowedFonts } from "Types/Fonts";
+import {
+  ICompleteLineBuilder,
+  IHorizontalLineBuilder,
+  IVerticalLineBuilder,
+} from "Types/Pdf";
+import { IResume } from "Types/Resume";
 
-// Interfaces
+import { AllLangsOptions } from "Assets/Languages";
 
-// Constants
+const A4 = [595.28, 841.89];
 
-import { Resume } from "../Types/Resume";
-
-import LANGUAGES from "Config/languages.json";
-import SIZES from "Config/sizes.json";
+const CONFIG = {
+  LINE_WIDTH: 2,
+  MARGIN: 50,
+  PAGE: A4,
+  X: A4[0],
+  Y: A4[1],
+};
 
 class PDF {
-  public doc: PDFKit.PDFDocument;
+  // PDF Doc
 
-  protected fontPath = path.resolve(__dirname, "..", "..", "fonts");
-  protected pdfPath = path.resolve(__dirname, "..", "..", "pdfs");
+  doc: PDFKit.PDFDocument;
+  stream: any;
 
-  // public font: string;
+  // Color
 
-  public name: string;
-  public headline: string;
-  public age: number;
-  public graduation: string;
-  public salaryExpectation: string;
-  public contact?: Resume.IDataSectionInterface[];
-  public portfolio?: Resume.IDataSectionInterface[];
-  public competences?: Resume.ICopetencesInterface[];
-  public languages?: Resume.IDataSectionInterface[];
-  public about?: string;
-  public employment?: Resume.ICompanyInterface[];
-  public academic?: Resume.ICompanyInterface[];
+  primaryColor = "#00000";
+  secondaryColor = "#00000";
+  tertiaryColor = "#00000";
 
-  public ResumeLang: Resume.IResumeLanguage = LANGUAGES["EN"];
+  // Config
 
-  public stColor = "#000";
-  public ndColor = "#000";
-  public thColor = "#000";
+  font: AllowedFonts = "Montserrat";
+  language: AllLangsOptions = "EN";
+  config = CONFIG;
 
-  public lang = "PT";
+  // Resume Fields
 
-  public config = {
-    MARGIN: 50,
-    PAGE: SIZES["A4"],
-    X: SIZES["A4"][0],
-    Y: SIZES["A4"][1],
-  };
+  resumeData: IResume;
 
-  public constructor(PdfConfig: Resume.IResume) {
-    const { filename, margin, page, info, lang } = PdfConfig;
-
-    if (margin) this.config.MARGIN = margin;
-
-    // if (lang && LANGUAGES[lang]) this.ResumeLang = LANGUAGES[lang];
-
-    // if (page && SIZES[page]) {
-    //   this.config.PAGE = SIZES[page];
-    //   this.config.X = SIZES[page][0];
-    //   this.config.Y = SIZES[page][1];
-    // }
+  constructor(language: AllLangsOptions, resumeData: IResume) {
+    this.language = language;
 
     this.doc = new PDFDocument({
       margin: this.config.MARGIN,
       size: this.config.PAGE,
     });
 
-    this.doc.pipe(fs.createWriteStream(this.pdfPath + "/" + filename + ".pdf"));
+    this.doc.info = {
+      Title: "resume",
+      Author: "React Resume Generator - Henrique Leite",
+      Creator: "React Resume Generator - Henrique Leite",
+      Keywords: "Resume",
+      CreationDate: new Date(),
+    };
 
-    if (info) {
-      const docInfo: PDFKit.DocumentInfo = {};
+    this.stream = this.doc.pipe(BlobStream());
 
-      if (info.title) docInfo.Title = info.title;
-      if (info.author) docInfo.Author = info.author;
-      if (info.keywords) docInfo.Keywords = info.keywords;
+    this.resumeData = resumeData;
+  }
 
-      this.doc.info = docInfo;
+  setFont(type?: "bold" | "regular") {
+    const FONT_PATH = "Assets/Fonts";
+
+    switch (type) {
+      case "bold":
+        this.doc.font(`${FONT_PATH}/${this.font}/Bold.ttf`);
+        break;
+      case "regular":
+      default:
+        this.doc.font(`${FONT_PATH}/${this.font}/Regular.ttf`);
+        break;
     }
-
-    this.name = PdfConfig.name;
-    this.headline = PdfConfig.headline;
-    this.age = PdfConfig.age;
-    this.graduation = PdfConfig.graduation;
-    this.contact = PdfConfig.contact;
-    this.salaryExpectation = PdfConfig.salaryExpectation;
-    this.portfolio = PdfConfig.portfolio;
-    this.competences = PdfConfig.competences;
-    this.languages = PdfConfig.languages;
-    this.about = PdfConfig.about;
-    this.employment = PdfConfig.employment;
-    this.academic = PdfConfig.academic;
   }
 
-  public bold() {
-    // this.doc.font(this.fontPath + "/" + (this.font + "-Bold") + ".ttf");
-  }
-
-  public regular() {
-    // this.doc.font(this.fontPath + "/" + this.font + ".ttf");
-  }
-
-  public line(options: Resume.ICompleteLineInterface) {
-    const { startX, startY, endX, endY, size, color } = options;
-
-    this.doc
-      .lineWidth(size || 2)
-      .moveTo(startX, startY)
-      .lineTo(endX, endY)
-      .strokeColor(color || "#000000")
-      .stroke();
-  }
-
-  public horizontalLine(options: Resume.ILineInterface) {
-    const { start, end, size, color, startX, endX } = options;
-
+  horizontalLine({ start, end, startX, size, color }: IHorizontalLineBuilder) {
     this.line({
-      size: size || 2,
+      size: size,
       color: color,
       startX: startX || this.config.MARGIN,
       startY: start,
@@ -127,17 +91,46 @@ class PDF {
     });
   }
 
-  public verticalLine(options: Resume.ILineInterface) {
-    const { start, end, size, color } = options;
-
+  verticalLine({ start, end, size, color }: IVerticalLineBuilder) {
     this.line({
-      size: size || 2,
+      size: size || this.config.LINE_WIDTH,
       color: color,
       startX: start,
       startY: this.config.MARGIN,
       endY: end ? end + this.config.MARGIN : this.config.X - this.config.MARGIN,
       endX: start,
     });
+  }
+
+  create(): Promise<string> {
+    return new Promise(resolve => {
+      this.doc.end();
+
+      this.stream.on("finish", () => {
+        // Get a Blob URL, to display PDF in Browser
+        const url = this.stream.toBlobURL("application/pdf");
+
+        resolve(url);
+      });
+    });
+  }
+
+  // Protected
+
+  protected line({
+    startX,
+    startY,
+    endX,
+    endY,
+    size,
+    color,
+  }: ICompleteLineBuilder) {
+    this.doc
+      .lineWidth(size || this.config.LINE_WIDTH)
+      .moveTo(startX, startY)
+      .lineTo(endX, endY)
+      .strokeColor(color || "#000000")
+      .stroke();
   }
 }
 

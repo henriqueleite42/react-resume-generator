@@ -55,4 +55,4 @@ const ArrayInputs: React.FC<IProps> = ({
   );
 };
 
-export default ArrayInputs;
+export default React.memo(ArrayInputs);

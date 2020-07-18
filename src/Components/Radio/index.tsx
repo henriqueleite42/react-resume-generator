@@ -39,4 +39,4 @@ const Radio: React.FC<IProps> = ({ label, value, name, onChange, options }) => {
   );
 };
 
-export default Radio;
+export default React.memo(Radio);

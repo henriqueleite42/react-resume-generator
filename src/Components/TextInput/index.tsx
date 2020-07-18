@@ -51,4 +51,4 @@ const TextInput: React.FC<IProps> = props => {
   );
 };
 
-export default TextInput;
+export default React.memo(TextInput);

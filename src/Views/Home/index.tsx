@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 
 import ArrayInputs from "Components/ArrayInputs";
 import Button from "Components/Button";
@@ -8,12 +9,12 @@ import Radio from "Components/Radio";
 import Textarea from "Components/Textarea";
 import TextInput from "Components/TextInput";
 
+import { useLanguage, useGlobalState, GlobalActions } from "Redux/Global";
+
 import { removeNonNumeric } from "Utils/String";
 import { isValidLinkedinProfile, isValidEmail } from "Utils/Validate";
 
 import { AllLangs, AllLangsOptions } from "Assets/Languages";
-import Errors from "Assets/Languages/Errors";
-import Form from "Assets/Languages/Form";
 
 import { Container, Header, FormContainer, ButtonContainer } from "./style";
 
@@ -36,8 +37,13 @@ const currencyOptions = [
 ];
 
 const View: React.FC = () => {
+  const { language } = useGlobalState();
+  const dispatch = useDispatch();
+
+  const FormLanguage = useLanguage<"Form">("Form");
+  const ErrorsLanguage = useLanguage<"Error">("Error");
+
   const { register, handleSubmit, setValue, errors } = useForm();
-  const [language, setLanguage] = useState<AllLangsOptions>("EN");
   const [currency, setCurrency] = useState<AllowedCurrencies>("USD");
   const [profilePicture, setProfilePicture] = useState<string>("");
   const [skills, setSkills] = useState<Array<string>>([""]);
@@ -80,6 +86,7 @@ const View: React.FC = () => {
           const newSkills = skills.slice();
           newSkills[index] = value;
           setSkills(newSkills);
+          break;
         case "language":
           const newLanguages = languages.slice();
           newLanguages[index] = value;
@@ -134,71 +141,75 @@ const View: React.FC = () => {
 
   return (
     <Container>
-      <Header>{Form[language].reactResumeGenerator}</Header>
+      <Header>{FormLanguage.reactResumeGenerator}</Header>
       <FormContainer onSubmit={handleSubmit(onSubmit)}>
         <Radio
-          label={Form[language].language}
+          label={FormLanguage.language}
           name="language"
           value={language}
-          onChange={e => setLanguage(e.target.value as AllLangsOptions)}
+          onChange={e =>
+            dispatch(
+              GlobalActions.setLanguage(e.target.value as AllLangsOptions),
+            )
+          }
           options={getLanguagesOptions}
         />
         <Radio
-          label={Form[language].currency}
+          label={FormLanguage.currency}
           name="currency"
           value={currency}
           onChange={e => setCurrency(e.target.value as AllowedCurrencies)}
           options={currencyOptions}
         />
         <Image
-          label={Form[language].profilePicture}
-          buttonLabel={Form[language].uploadFile}
-          buttonEditLabel={Form[language].buttonEdit}
-          buttonRemoveLabel={Form[language].buttonRemove}
-          buttonSelectLabel={Form[language].buttonSelect}
+          label={FormLanguage.profilePicture}
+          buttonLabel={FormLanguage.uploadFile}
+          buttonEditLabel={FormLanguage.buttonEdit}
+          buttonRemoveLabel={FormLanguage.buttonRemove}
+          buttonSelectLabel={FormLanguage.buttonSelect}
           value={profilePicture}
           setValue={setProfilePicture}
         />
         <TextInput
           isRequired
-          label={Form[language].name}
+          label={FormLanguage.name}
           name="name"
           innerRef={register({
             required: true,
           })}
-          errorMessage={errors.name && Errors[language].required}
+          errorMessage={errors.name && ErrorsLanguage.required}
         />
         <TextInput
           isRequired
-          label={Form[language].headline}
+          label={FormLanguage.headline}
           name="headline"
           innerRef={register({
             required: true,
           })}
-          errorMessage={errors.name && Errors[language].required}
+          errorMessage={errors.name && ErrorsLanguage.required}
         />
         <Textarea
           isRequired
-          label={Form[language].about}
+          label={FormLanguage.about}
           name="about"
           innerRef={register({
             required: true,
           })}
-          errorMessage={errors.name && Errors[language].required}
+          errorMessage={errors.name && ErrorsLanguage.required}
         />
         <TextInput
-          label={Form[language].age}
+          label={FormLanguage.age}
           name="age"
           onChange={e => formatAge(e.target.value)}
           innerRef={register()}
         />
         <TextInput
-          label={Form[language].phone}
+          label={FormLanguage.phone}
           name="phone"
           innerRef={register()}
         />
         <TextInput
-          label={Form[language].graduation}
+          label={FormLanguage.graduation}
           name="gaduation"
           innerRef={register()}
         />
@@ -207,7 +218,7 @@ const View: React.FC = () => {
           name="email"
           innerRef={register({
             validate: value =>
-              isValidEmail(value) || Errors[language].invalidEmail,
+              isValidEmail(value) || ErrorsLanguage.invalidEmail,
           })}
           errorMessage={errors.email && errors.email.message}
         />
@@ -216,12 +227,12 @@ const View: React.FC = () => {
           name="linkedin"
           innerRef={register({
             validate: value =>
-              isValidLinkedinProfile(value) || Errors[language].invalidLinkedin,
+              isValidLinkedinProfile(value) || ErrorsLanguage.invalidLinkedin,
           })}
           errorMessage={errors.linkedin && errors.linkedin.message}
         />
         <TextInput
-          label={Form[language].salaryExpectation}
+          label={FormLanguage.salaryExpectation}
           name="salaryExpectation"
           onChange={e =>
             setValue("salaryExpectation", removeNonNumeric(e.target.value))
@@ -229,7 +240,7 @@ const View: React.FC = () => {
           innerRef={register()}
         />
         <ArrayInputs
-          label={Form[language].competences}
+          label={FormLanguage.competences}
           inputs={skills}
           setValue={(index, value) =>
             changeArrayFieldValue("skill", index, value)
@@ -238,7 +249,7 @@ const View: React.FC = () => {
           addField={() => addArrayField("skill")}
         />
         <ArrayInputs
-          label={Form[language].languages}
+          label={FormLanguage.languages}
           inputs={languages}
           setValue={(index, value) =>
             changeArrayFieldValue("language", index, value)
@@ -247,7 +258,7 @@ const View: React.FC = () => {
           addField={() => addArrayField("language")}
         />
         <ButtonContainer>
-          <Button aria-label="submit">{Form[language].submit}</Button>
+          <Button aria-label="submit">{FormLanguage.submit}</Button>
         </ButtonContainer>
       </FormContainer>
     </Container>

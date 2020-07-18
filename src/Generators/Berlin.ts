@@ -1,60 +1,78 @@
-import { Resume } from "../Types/Resume";
+import { IResume } from "Types/Resume";
+
 import PDF from "./PDF";
 
+import { AllLangsOptions } from "Assets/Languages";
+
 class Berlin extends PDF {
-  // public constructor(PdfConfig: Resume.IResume) {
-  //   super(PdfConfig);
-  //   this.font = "LiberationSans";
-  //   this.stColor = "#212121";
-  //   this.ndColor = "#777";
-  //   this.thColor = "#dadada";
-  //   // Lines
-  //   this.horizontalLine({
-  //     size: 1,
-  //     start: 140,
-  //     color: this.thColor,
-  //   });
-  //   this.doc
-  //     .moveDown(0.7)
-  //     .lineWidth(1)
-  //     .moveTo(260, 140)
-  //     .lineTo(260, this.config.Y - this.config.MARGIN)
-  //     .strokeColor(this.thColor)
-  //     .stroke();
-  //   // Header
-  //   this.bold();
-  //   this.doc
-  //     .fontSize(36)
-  //     .fillColor(this.stColor)
-  //     .text(PdfConfig.name.toUpperCase(), this.doc.x, this.doc.y, {
-  //       characterSpacing: 5,
-  //     });
-  //   this.regular();
-  //   this.doc
-  //     .moveDown(0.2)
-  //     .fontSize(14)
-  //     .fillColor(this.ndColor)
-  //     .text(
-  //       [
-  //         PdfConfig.headline,
-  //         PdfConfig.graduation,
-  //         PdfConfig.age + " " + this.ResumeLang.age,
-  //       ].join("  -  "),
-  //     );
-  //   // Left Side
-  //   if (this.contact) this.contactSection();
-  //   if (this.portfolio) this.portfolioSection();
-  //   if (this.competences) this.competencesSection();
-  //   if (this.languages) this.languagesSection();
-  //   if (this.salaryExpectation) this.salaryExpectationSection();
-  //   this.obsSection();
-  //   // Right Side
-  //   this.doc.x = 280;
-  //   this.doc.y = 134.7;
-  //   if (this.about) this.aboutSection();
-  //   if (this.employment) this.employmentSection();
-  //   this.doc.end();
-  // }
+  constructor(language: AllLangsOptions, resumeData: IResume) {
+    super(language, resumeData);
+
+    this.font = "LiberationSans";
+
+    this.primaryColor = "#212121";
+    this.secondaryColor = "#777";
+    this.tertiaryColor = "#dadada";
+  }
+
+  protected mainLines() {
+    this.horizontalLine({
+      size: 1,
+      start: 140,
+      color: this.tertiaryColor,
+    });
+
+    this.doc
+      .moveDown(0.7)
+      .lineWidth(1)
+      .moveTo(260, 140)
+      .lineTo(260, this.config.Y - this.config.MARGIN)
+      .strokeColor(this.tertiaryColor)
+      .stroke();
+  }
+
+  protected header() {
+    this.setFont("bold");
+
+    this.doc
+      .fontSize(36)
+      .fillColor(this.secondaryColor)
+      .text(this.resumeData.name.toUpperCase(), this.doc.x, this.doc.y, {
+        characterSpacing: 5,
+      });
+
+    this.setFont();
+
+    this.doc
+      .moveDown(0.2)
+      .fontSize(14)
+      .fillColor(this.secondaryColor)
+      .text(
+        [
+          this.resumeData.headline,
+          this.resumeData.graduation,
+          this.resumeData.age + " " + this.resumeData.age,
+        ].join("  -  "),
+      );
+  }
+
+  protected leftSide() {
+    // if (this.resumeData.contact) this.contactSection();
+    // if (this.resumeData.portfolio) this.portfolioSection();
+    // if (this.resumeData.competences) this.competencesSection();
+    // if (this.resumeData.languages) this.languagesSection();
+    // if (this.resumeData.salaryExpectation) this.salaryExpectationSection();
+    // this.obsSection();
+  }
+
+  protected rightSide() {
+    //   this.doc.x = 280;
+    //   this.doc.y = 134.7;
+    //   if (this.about) this.aboutSection();
+    //   if (this.employment) this.employmentSection();
+    //   this.doc.end();
+  }
+
   // protected sectionTitle(title: string) {
   //   this.bold();
   //   this.doc
@@ -78,7 +96,7 @@ class Berlin extends PDF {
   //     size: 1,
   //     start: this.doc.y + 15,
   //     startX: this.doc.x,
-  //     color: this.thColor,
+  //     color: this.tertiaryColor,
   //   });
   //   this.doc.y += 10;
   // }

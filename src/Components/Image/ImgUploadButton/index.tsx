@@ -23,4 +23,4 @@ const ImgUploadButton: React.FC<IProps> = ({ label, setValue }) => (
   </Container>
 );
 
-export default ImgUploadButton;
+export default React.memo(ImgUploadButton);
